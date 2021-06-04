@@ -1,4 +1,9 @@
-﻿using System;
+﻿/// Copyright Noah Sherwin 2021
+/// This file is part of the 'Intern' project
+///
+
+using System;
+using System.IO;
 
 namespace Intern
 {
@@ -10,7 +15,7 @@ namespace Intern
         public enum Type
         {
             FileSystemDelete,
-            FileSystemTakeOwnership
+            FileSystemModifyPermissions
         }
 
         /// <summary>
@@ -25,11 +30,36 @@ namespace Intern
                 case Type.FileSystemDelete:
                     if (path == null) throw Exceptions.PathIsNullException(task);
 
+                    /// <see href="https://stackoverflow.com/a/1395226/14894786"/>
+                    try
+                    {
+                        FileAttributes attr = File.GetAttributes(path);
+                        if (attr.HasFlag(FileAttributes.Directory))
+                            new DirectoryInfo(path).Delete(recursive: true);
+                        else new FileInfo(path).Delete();
+                    }
+                    /** invalid path */
+                    catch (ArgumentException) { }
+                    catch (PathTooLongException) { }
+                    /** invalid format */
+                    catch (NotSupportedException) { }
+                    catch (FileNotFoundException) { }
+                    catch (DirectoryNotFoundException) { }
+                    /** The file is in use by another process */
+                    catch (IOException)
+                    {
+                        // TODO: try to close the handle(s) of the file
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // TODO: determine if we can obtain permission to continue
+                        // - new process with elevation or alternative authorization or change the item's permissions
+                    }
+
                     break;
 
-                case Type.FileSystemTakeOwnership:
+                case Type.FileSystemModifyPermissions:
                     if (path == null) throw Exceptions.PathIsNullException(task);
-
                     break;
 
                 default: throw new ArgumentOutOfRangeException($"The Intern does not recognize the task, \"{task}\".");
@@ -45,7 +75,7 @@ namespace Intern
 
             public static UnauthorizedAccessException UnauthorizedAccessException(Type task, string path)
             {
-                throw new UnauthorizedAccessException($"The Intern was denied required permissions to \"{path}\" while working on the task, \"{task}\".");
+                throw new UnauthorizedAccessException($"The Intern was denied required permissions for \"{path}\" while working on the task, \"{task}\".");
             }
         }
     }
