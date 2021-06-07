@@ -3,19 +3,35 @@
 ///
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Intern
 {
     public class Tasks
     {
+        /** TODO: Create template functions for each task. Result will resemble the System.Threading.Task namespace */
+
         /// <summary>
         ///     The Type of Task to execute.
         /// </summary>
         public enum Type
         {
+            None,
             FileSystemDelete,
             FileSystemModifyPermissions
+        }
+
+        public List<Task> TaskList;
+
+        /// <summary>
+        ///     A structured template for a Task's metadata.
+        /// </summary>
+        public struct Task
+        {
+            public Type Type;
+            public string Path;
+            public string Parameters;
         }
 
         /// <summary>
@@ -23,20 +39,20 @@ namespace Intern
         /// </summary>
         /// <param name="task">The <see cref="Type"> of task to execute.</param>
         /// <param name="path">A network, filesystem, Window Registry path.</param>
-        public static void DoTask(Type task, string path = null)
+        public static void DoTask(Task task)
         {
-            switch (task)
+            switch (task.Type)
             {
                 case Type.FileSystemDelete:
-                    if (path == null) throw Exceptions.PathIsNullException(task);
+                    if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
 
                     /// <see href="https://stackoverflow.com/a/1395226/14894786"/>
                     try
                     {
-                        FileAttributes attr = File.GetAttributes(path);
+                        FileAttributes attr = File.GetAttributes(task.Path);
                         if (attr.HasFlag(FileAttributes.Directory))
-                            new DirectoryInfo(path).Delete(recursive: true);
-                        else new FileInfo(path).Delete();
+                            new DirectoryInfo(task.Path).Delete(recursive: true);
+                        else new FileInfo(task.Path).Delete();
                     }
                     /** invalid path */
                     catch (ArgumentException) { }
@@ -59,7 +75,7 @@ namespace Intern
                     break;
 
                 case Type.FileSystemModifyPermissions:
-                    if (path == null) throw Exceptions.PathIsNullException(task);
+                    if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
                     break;
 
                 default: throw new ArgumentOutOfRangeException($"The Intern does not recognize the task, \"{task}\".");
