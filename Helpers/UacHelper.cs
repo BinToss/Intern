@@ -1,20 +1,22 @@
-﻿/// From https://stackoverflow.com/questions/1220213/detect-if-running-as-administrator-with-or-without-elevated-privileges/4497572#4497572
-/// Original https://archive.codeplex.com/?p=uachelpers
-/// Edit 1 https://stackoverflow.com/a/4497572/80274
-/// Edit 2 https://stackoverflow.com/a/55079599/14894786
+﻿/// From
+/// https://stackoverflow.com/questions/1220213/detect-if-running-as-administrator-with-or-without-elevated-privileges/4497572#4497572
+/// Original https://archive.codeplex.com/?p=uachelpers Edit 1
+/// https://stackoverflow.com/a/4497572/80274 Edit 2 https://stackoverflow.com/a/55079599/14894786
 /// Edit 3
 ///
-/// NuGet
-/// GitHub https://github.com/falahati/UACHelper
+/// NuGet GitHub https://github.com/falahati/UACHelper
 
 using Microsoft.Win32;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using static Intern.Helpers.UacHelper.TokenElevationType;
 
 namespace Intern.Helpers
 {
+    // TODO https://stackoverflow.com/a/38676215/14894786
     public static class UacHelper
     {
         private const string uacRegistryKey = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System";
@@ -33,9 +35,9 @@ namespace Intern.Helpers
         private static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool GetTokenInformation(IntPtr TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass, IntPtr TokenInformation, uint TokenInformationLength, out uint ReturnLength);
+        public static extern bool GetTokenInformation(IntPtr TokenHandle, TokenInformationClass TokenInformationClass, IntPtr TokenInformation, uint TokenInformationLength, out uint ReturnLength);
 
-        public enum TOKEN_INFORMATION_CLASS
+        public enum TokenInformationClass
         {
             TokenUser = 1,
             TokenGroups,
@@ -68,7 +70,7 @@ namespace Intern.Helpers
             MaxTokenInfoClass
         }
 
-        public enum TOKEN_ELEVATION_TYPE
+        public enum TokenElevationType
         {
             TokenElevationTypeDefault = 1,
             TokenElevationTypeFull,
@@ -102,21 +104,21 @@ namespace Intern.Helpers
 
                     try
                     {
-                        TOKEN_ELEVATION_TYPE elevationResult = TOKEN_ELEVATION_TYPE.TokenElevationTypeDefault;
+                        TokenElevationType elevationResult = TokenElevationTypeDefault;
 
-                        int elevationResultSize = Marshal.SizeOf(typeof(TOKEN_ELEVATION_TYPE));
+                        int elevationResultSize = Marshal.SizeOf(typeof(TokenElevationType));
                         uint returnedSize = 0;
 
                         IntPtr elevationTypePtr = Marshal.AllocHGlobal(elevationResultSize);
                         try
                         {
-                            bool success = GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType,
-                                                               elevationTypePtr, (uint) elevationResultSize,
+                            bool success = GetTokenInformation(tokenHandle, TokenInformationClass.TokenElevationType,
+                                                               elevationTypePtr, (uint)elevationResultSize,
                                                                out returnedSize);
                             if (success)
                             {
-                                elevationResult = (TOKEN_ELEVATION_TYPE) Marshal.ReadInt32(elevationTypePtr);
-                                bool isProcessAdmin = elevationResult == TOKEN_ELEVATION_TYPE.TokenElevationTypeFull;
+                                elevationResult = (TokenElevationType)Marshal.ReadInt32(elevationTypePtr);
+                                bool isProcessAdmin = elevationResult == TokenElevationTypeFull;
                                 return isProcessAdmin;
                             }
                             else
@@ -145,6 +147,48 @@ namespace Intern.Helpers
                     return result;
                 }
             }
+        }
+
+        ///////////////
+        /// Section 2
+        /// https://stackoverflow.com/a/1220234/14894786
+        /// Roughly translated from C++ to C# -- Noah Sherwin
+        ///////////////
+
+        private static bool IsCurrentProcessElevated => GetProcessTokenElevationType() == TokenElevationTypeFull;    //elevated
+
+        public static TokenElevationType GetProcessTokenElevationType(Process process = null)
+        {
+            if (process == null)
+                process = Process.GetCurrentProcess();
+
+            IntPtr hToken = new IntPtr();
+            try
+            {
+                if (!OpenProcessToken(process.Handle, TOKEN_QUERY, out hToken))
+                    throw new Win32Exception(GetLastError());
+
+                TokenElevationType elevationType;
+                long dwSize;
+                if (!GetTokenInformation(hToken, TokenInformationClass.TokenElevationType, out elevationType, IntPtr.Zero, out dwSize))
+                    throw new Win32Exception(GetLastError());
+
+                return elevationType;
+            }
+            finally
+            {
+                CloseHandle(hToken);
+            }
+        }
+
+        private static int GetLastError()
+        {
+            return GetLastWin32Error();
+        }
+
+        private static int GetLastWin32Error()
+        {
+            throw new NotImplementedException();
         }
     }
 }
