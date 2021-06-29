@@ -2,3 +2,7 @@
 	path = Helpers/elevator
 	url = https://github.com/yumiris/elevator.git
 	branch = master
+[submodule "Helpers/ProcessHacker"]
+	path = Helpers/ProcessHacker
+	url = ../../processhacker/
+	branch = master
