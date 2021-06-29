@@ -1,6 +1,6 @@
-﻿/// Copyright Noah Sherwin 2021
+﻿///////
+/// Copyright Noah Sherwin 2021
 /// This file is part of the 'Intern' project
-///
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,9 @@ namespace Intern
         {
             None,
             FileSystemDelete,
-            FileSystemModifyPermissions
+            ComparePermissions,
+            ModifyPermissions,
+            ReadPermissions
         }
 
         public List<Task> TaskList;
@@ -34,51 +36,53 @@ namespace Intern
             public string Parameters;
         }
 
-        /// <summary>
-        ///     Execute the specified task—with the given path if necessary.
-        /// </summary>
-        /// <param name="task">The <see cref="Type"> of task to execute.</param>
-        /// <param name="path">A network, filesystem, Window Registry path.</param>
+        /// <summary> Execute the specified task—with the given path if necessary. </summary> <param
+        /// name="task">The <see cref="Type"> of task to execute.</param> <param name="path">A
+        /// network, filesystem, Window Registry path.</param>
         public static void DoTask(Task task)
         {
             switch (task.Type)
             {
                 case Type.FileSystemDelete:
-                    if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
-
-                    /// <see href="https://stackoverflow.com/a/1395226/14894786"/>
-                    try
-                    {
-                        FileAttributes attr = File.GetAttributes(task.Path);
-                        if (attr.HasFlag(FileAttributes.Directory))
-                            new DirectoryInfo(task.Path).Delete(recursive: true);
-                        else new FileInfo(task.Path).Delete();
-                    }
-                    /** invalid path */
-                    catch (ArgumentException) { }
-                    catch (PathTooLongException) { }
-                    /** invalid format */
-                    catch (NotSupportedException) { }
-                    catch (FileNotFoundException) { }
-                    catch (DirectoryNotFoundException) { }
-                    /** The file is in use by another process */
-                    catch (IOException)
-                    {
-                        // TODO: try to close the handle(s) of the file
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        // TODO: determine if we can obtain permission to continue
-                        // - new process with elevation or alternative authorization or change the item's permissions
-                    }
+                    FileSystemDelete(task);
 
                     break;
 
-                case Type.FileSystemModifyPermissions:
+                case Type.ModifyPermissions:
                     if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
                     break;
 
                 default: throw new ArgumentOutOfRangeException($"The Intern does not recognize the task, \"{task}\".");
+            }
+        }
+
+        private static void FileSystemDelete(Task task)
+        {
+            if (string.IsNullOrEmpty(task.Path)) throw Exceptions.PathIsNullException(task.Type);
+
+            /// <see href="https://stackoverflow.com/a/1395226/14894786" />
+            try
+            {
+                FileAttributes attr = File.GetAttributes(task.Path);
+                bool isDir = attr.HasFlag(FileAttributes.Directory);
+
+                if (attr.HasFlag(FileAttributes.Directory))
+                    new DirectoryInfo(task.Path).Delete(recursive: true);
+                else new FileInfo(task.Path).Delete();
+            }
+            catch (ArgumentException) { } /** invalid path */
+            catch (PathTooLongException) { }
+            catch (NotSupportedException) { } /** invalid format */
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+            catch (IOException) /** The file is in use by another process */
+            {
+                // TODO: try to close the handle(s) of the file; Employ
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // TODO: determine if we can obtain permission to continue
+                // - new process with elevation or alternative authorization or change the item's permissions
             }
         }
 
