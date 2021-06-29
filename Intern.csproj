@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ACLHelper\ACLHelper.cs" />
-    <Compile Include="Helpers\ACLHelper\CurrentUserSecurity.cs" />
+    <Compile Include="Helpers\ACLHelper\UserSecurity.cs" />
     <Compile Include="Helpers\Process.cs">
       <SubType>Component</SubType>
     </Compile>

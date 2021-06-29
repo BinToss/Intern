@@ -6,12 +6,12 @@ using System.Security.Principal;
 
 namespace Intern.Helpers.ACLHelper
 {
-    public class CurrentUserSecurity
+    public class UserSecurity
     {
         private WindowsIdentity _currentUser;
         private WindowsPrincipal _currentPrincipal;
 
-        public CurrentUserSecurity()
+        public UserSecurity()
         {
             _currentUser = WindowsIdentity.GetCurrent();
             _currentPrincipal = new WindowsPrincipal(_currentUser);
