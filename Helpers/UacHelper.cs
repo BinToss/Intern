@@ -168,9 +168,9 @@ namespace Intern.Helpers
                 if (!OpenProcessToken(process.Handle, TOKEN_QUERY, out hToken))
                     throw new Win32Exception(GetLastError());
 
-                TokenElevationType elevationType;
-                long dwSize;
-                if (!GetTokenInformation(hToken, TokenInformationClass.TokenElevationType, out elevationType, IntPtr.Zero, out dwSize))
+                TokenElevationType elevationType = TokenElevationTypeDefault;
+                uint dwSize;
+                if (!GetTokenInformation(hToken, TokenInformationClass.TokenElevationType, (IntPtr)elevationType, sizeof(TokenElevationType), out dwSize))
                     throw new Win32Exception(GetLastError());
 
                 return elevationType;
@@ -183,12 +183,7 @@ namespace Intern.Helpers
 
         private static int GetLastError()
         {
-            return GetLastWin32Error();
-        }
-
-        private static int GetLastWin32Error()
-        {
-            throw new NotImplementedException();
+            return Marshal.GetLastWin32Error();
         }
     }
 }
