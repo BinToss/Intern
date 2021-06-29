@@ -155,7 +155,7 @@ namespace Intern.Helpers
         /// Roughly translated from C++ to C# -- Noah Sherwin
         ///////////////
 
-        private static bool IsCurrentProcessElevated => GetProcessTokenElevationType() == TokenElevationTypeFull;   //elevated
+        public static bool IsCurrentProcessElevated => GetProcessTokenElevationType() == TokenElevationTypeFull;
 
         public static TokenElevationType GetProcessTokenElevationType(Process process = null)
         {
