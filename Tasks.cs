@@ -2,6 +2,9 @@
 /// Copyright Noah Sherwin 2021
 /// This file is part of the 'Intern' project
 
+using Intern.Helpers;
+using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,11 +48,114 @@ namespace Intern
             {
                 case Type.FileSystemDelete:
                     FileSystemDelete(task);
+                    break;
+
+                case Type.ComparePermissions: // TODO: What do I want from this?
+                    if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
+                    // TODO: Check these per parameter. We might be given a procID and a file
+
+                    var str1 = task.Path.Split(';')[0];
+                    var str2 = task.Path.Split(';')[1];
+
+                    bool arePaths = Path.IsPathRooted(str1) && Path.IsPathRooted(str2);
+
+                    /// Check if Reg Keys
+                    try
+                    {
+                        string[] hkeyNames = new string[]
+                        {
+                              "HKEY_CLASSES_ROOT",
+                              "HKCR",
+                              "HKEY_CURRENT_USER",
+                              "HKCU",
+                              "HKEY_LOCAL_MACHINE",
+                              "HKLM",
+                              "HKEY_USERS",
+                              "HKU",
+                              "HKEY_PERFORMANCE_DATA",
+                              "HKEY_CURRENT_CONFIG",
+                              "HKEY_DYN_DATA"
+                        };
+
+                        bool str1HasBase = false;
+                        string objABase;
+                        bool str2HasBase = false;
+                        string objBBase;
+
+                        foreach (string hkeyname in hkeyNames)
+                        {
+                            if (str1.StartsWith(hkeyname))
+                            {
+                                str1HasBase = true;
+                                objABase = hkeyname;
+                            }
+                        }
+
+                        foreach (string hkeyname in hkeyNames)
+                        {
+                            if (str2.StartsWith(hkeyname))
+                            {
+                                str2HasBase = true;
+                                objBBase = hkeyname;
+                            }
+                        }
+
+                        if (!str1HasBase || !str2HasBase)
+                            throw new ArgumentException();
+
+                        var hiveA = GetHiveByName(str1.Split('\\')[0]);
+                        var hiveB = GetHiveByName(str2.Split('\\')[0]);
+                        using (var keyA = RegistryKey.OpenBaseKey(hiveA, RegistryView.Default))
+                        using (var keyB = RegistryKey.OpenBaseKey(hiveB, RegistryView.Default))
+                        {
+                            // TODO: Compare RegKey ACLs; Difficulty: easier than processes
+                        }
+
+                        RegistryHive GetHiveByName(string name)
+                        {
+                            RegistryHive hive;
+
+                            if (name.Equals(hkeyNames[0], StringComparison.CurrentCultureIgnoreCase) ||
+                                name.Equals(hkeyNames[1], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.ClassesRoot;
+                            else if (name.Equals(hkeyNames[2], StringComparison.CurrentCultureIgnoreCase) ||
+                                    name.Equals(hkeyNames[3], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.CurrentUser;
+                            else if (name.Equals(hkeyNames[4], StringComparison.CurrentCultureIgnoreCase) ||
+                                    name.Equals(hkeyNames[5], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.LocalMachine;
+                            else if (name.Equals(hkeyNames[6], StringComparison.CurrentCultureIgnoreCase) ||
+                                    name.Equals(hkeyNames[7], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.Users;
+                            else if (name.Equals(hkeyNames[8], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.PerformanceData;
+                            else if (name.Equals(hkeyNames[9], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.CurrentConfig;
+                            else if (name.Equals(hkeyNames[10], StringComparison.CurrentCultureIgnoreCase))
+                                hive = RegistryHive.DynData;
+                            else throw new IndexOutOfRangeException();
+
+                            return hive;
+                        }
+                    }
+                    catch (ArgumentException) { }
+                    catch (IndexOutOfRangeException) { }
+                    catch (Exception) { }
+
+                    // probably a process ID
+                    if (!arePaths)
+                    {
+                        int ID1 = int.Parse(str1);
+                        int ID2 = int.Parse(str2);
+                        var proc1 = System.Diagnostics.Process.GetProcessById(ID1);
+                        var proc2 = System.Diagnostics.Process.GetProcessById(ID2);
+                    }
 
                     break;
 
                 case Type.ModifyPermissions:
                     if (task.Path == null) throw Exceptions.PathIsNullException(task.Type);
+
                     break;
 
                 default: throw new ArgumentOutOfRangeException($"The Intern does not recognize the task, \"{task}\".");
