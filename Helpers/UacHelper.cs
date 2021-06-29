@@ -155,12 +155,12 @@ namespace Intern.Helpers
         /// Roughly translated from C++ to C# -- Noah Sherwin
         ///////////////
 
-        private static bool IsCurrentProcessElevated => GetProcessTokenElevationType() == TokenElevationTypeFull;    //elevated
+        private static bool IsCurrentProcessElevated => GetProcessTokenElevationType() == TokenElevationTypeFull;   //elevated
 
         public static TokenElevationType GetProcessTokenElevationType(Process process = null)
         {
             if (process == null)
-                process = Process.GetCurrentProcess();
+                process = (Process)System.Diagnostics.Process.GetCurrentProcess();
 
             IntPtr hToken = new IntPtr();
             try
@@ -169,8 +169,7 @@ namespace Intern.Helpers
                     throw new Win32Exception(GetLastError());
 
                 TokenElevationType elevationType = TokenElevationTypeDefault;
-                uint dwSize;
-                if (!GetTokenInformation(hToken, TokenInformationClass.TokenElevationType, (IntPtr)elevationType, sizeof(TokenElevationType), out dwSize))
+                if (!GetTokenInformation(hToken, TokenInformationClass.TokenElevationType, (IntPtr)elevationType, sizeof(TokenElevationType), out uint dwSize))
                     throw new Win32Exception(GetLastError());
 
                 return elevationType;
