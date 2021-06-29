@@ -8,13 +8,19 @@ namespace Intern.Helpers.ACLHelper
 {
     public class UserSecurity
     {
-        private WindowsIdentity _currentUser;
-        private WindowsPrincipal _currentPrincipal;
+        private WindowsIdentity _user;
+        private WindowsPrincipal _principal;
 
         public UserSecurity()
         {
-            _currentUser = WindowsIdentity.GetCurrent();
-            _currentPrincipal = new WindowsPrincipal(_currentUser);
+            _user = WindowsIdentity.GetCurrent();
+            _principal = new WindowsPrincipal(_user);
+        }
+
+        public UserSecurity(WindowsIdentity identity)
+        {
+            _user = identity;
+            _principal = new WindowsPrincipal(_user);
         }
 
         public bool HasAccess(DirectoryInfo directory, FileSystemRights right)
@@ -44,8 +50,8 @@ namespace Intern.Helpers.ACLHelper
             {
                 var currentRule = (FileSystemAccessRule)acl[i];
                 // If the current rule applies to the current user.
-                if (_currentUser.User.Equals(currentRule.IdentityReference) ||
-                    _currentPrincipal.IsInRole(
+                if (_user.User.Equals(currentRule.IdentityReference) ||
+                    _principal.IsInRole(
                                     (SecurityIdentifier)currentRule.IdentityReference))
                 {
                     if (currentRule.AccessControlType.Equals(AccessControlType.Deny))
