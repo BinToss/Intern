@@ -8,7 +8,7 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Helpers\Process.cs">
+    <Compile Update="ext\Process.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
@@ -25,15 +25,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\Build.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\config.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\GlobalSuppressions.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\HeaderGen.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\Program.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\Properties\Resources.Designer.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\Utils.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\CustomBuildTool\Zip.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\GenerateZw\Program.cs" />
-    <Compile Remove="Helpers\ProcessHacker\tools\GenerateZw\ZwGen.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\Build.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\config.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\GlobalSuppressions.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\HeaderGen.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\Program.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\Properties\Resources.Designer.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\Utils.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\CustomBuildTool\Zip.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\GenerateZw\Program.cs" />
+    <Compile Remove="ext\ProcessHacker\tools\GenerateZw\ZwGen.cs" />
   </ItemGroup>
 </Project>

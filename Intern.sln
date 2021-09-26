@@ -8,9 +8,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intern", "Intern.csproj", "
 		{7B9FF686-FB97-4DC6-85A3-066A24DBD5E3} = {7B9FF686-FB97-4DC6-85A3-066A24DBD5E3}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elevator", "Helpers\Elevator\src\Elevator.csproj", "{7B9FF686-FB97-4DC6-85A3-066A24DBD5E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elevator", "ext\Elevator\src\Elevator.csproj", "{7B9FF686-FB97-4DC6-85A3-066A24DBD5E3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessHacker", "Helpers\ProcessHacker\ProcessHacker\ProcessHacker.vcxproj", "{0271DD27-6707-4290-8DFE-285702B7115D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessHacker", "ext\ProcessHacker\ProcessHacker\ProcessHacker.vcxproj", "{0271DD27-6707-4290-8DFE-285702B7115D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
