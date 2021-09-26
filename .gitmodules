@@ -1,8 +1,10 @@
-[submodule "Helpers/elevator"]
-	path = Helpers/elevator
-	url = https://github.com/yumiris/elevator.git
+[submodule "Elevator"]
+	path = ext/Elevator
+	url = https://github.com/Yumiris/Elevator.git
 	branch = master
-[submodule "Helpers/ProcessHacker"]
-	path = Helpers/ProcessHacker
-	url = https://github.com/ProcessHacker/processhacker.git
+	ignore = all
+[submodule "ProcessHacker"]
+	path = ext/ProcessHacker
+	url = https://github.com/processhacker/processhacker.git
 	branch = master
+	ignore = all
