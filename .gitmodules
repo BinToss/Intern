@@ -8,5 +8,4 @@
 	url = https://github.com/processhacker/processhacker.git
 	branch = master
 	ignore = all
-[submodule "ext/ProcessHacker"]
 	shallow = true
